@@ -1,71 +1,67 @@
 import { createSlice, nanoid, PayloadAction } from "@reduxjs/toolkit";
 
-export interface ListItem {
+export interface ShoppingItem {
   id: string;
-  title: string;
-  amount: number;
-  completed: boolean;
-  timestamp: number;
+  name: string;
+  quantity: number;
+  purchased: boolean;
+  createdAt: number;
 }
 
-export interface ListState {
-  entries: ListItem[];
+export interface ShoppingState {
+  items: ShoppingItem[];
 }
 
-const initialState: ListState = {
-  entries: [],
+const initialState: ShoppingState = {
+  items: [],
 };
 
-const listSlice = createSlice({
-  name: "list",
+const shoppingSlice = createSlice({
+  name: "shopping",
   initialState,
   reducers: {
     addItem: {
-      reducer(state, action: PayloadAction<ListItem>) {
-        state.entries.unshift(action.payload);
+      reducer(state, action: PayloadAction<ShoppingItem>) {
+        state.items.unshift(action.payload);
       },
-      prepare(title: string, amount: number) {
+      prepare(name: string, quantity: number) {
         return {
           payload: {
             id: nanoid(),
-            title,
-            amount,
-            completed: false,
-            timestamp: Date.now(),
-          } as ListItem,
+            name,
+            quantity,
+            purchased: false,
+            createdAt: Date.now(),
+          } as ShoppingItem,
         };
       },
     },
 
-    updateItem(
+    editItem(
       state,
-      action: PayloadAction<{ id: string; title?: string; amount?: number }>
+      action: PayloadAction<{ id: string; name: string; quantity: number }>
     ) {
-      const target = state.entries.find((e) => e.id === action.payload.id);
-      if (target) {
-        if (action.payload.title !== undefined)
-          target.title = action.payload.title;
-        if (action.payload.amount !== undefined)
-          target.amount = action.payload.amount;
+      const item = state.items.find((i) => i.id === action.payload.id);
+      if (item) {
+        item.name = action.payload.name;
+        item.quantity = action.payload.quantity;
       }
     },
 
-    removeItem(state, action: PayloadAction<string>) {
-      state.entries = state.entries.filter((e) => e.id !== action.payload);
+    deleteItem(state, action: PayloadAction<string>) {
+      state.items = state.items.filter((i) => i.id !== action.payload);
     },
 
-    toggleItemStatus(state, action: PayloadAction<string>) {
-      const target = state.entries.find((e) => e.id === action.payload);
-      if (target) target.completed = !target.completed;
-    },
-
-    resetList(state) {
-      state.entries = [];
+    togglePurchased(state, action: PayloadAction<string>) {
+      const item = state.items.find((i) => i.id === action.payload);
+      if (item) {
+        item.purchased = !item.purchased;
+      }
     },
   },
 });
 
-export const { addItem, updateItem, removeItem, toggleItemStatus, resetList } =
-  listSlice.actions;
+export const { addItem, editItem, deleteItem, togglePurchased } =
+  shoppingSlice.actions;
 
-export default listSlice.reducer;
+export default shoppingSlice.reducer;
