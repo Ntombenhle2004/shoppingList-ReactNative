@@ -1,27 +1,44 @@
-import React, { useEffect } from "react";
-import { Provider, useDispatch } from "react-redux";
-import { store } from "./store";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { loadLists } from "../features/list/listsSlice";
+import React from "react";
+import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "./store";
+import ItemCreator from "./components/ItemCreator";
+import ItemList from "./components/ItemList";
 
-const Loader = ({ children }: any) => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    const load = async () => {
-      const data = await AsyncStorage.getItem("SHOPPING_LISTS");
-      if (data) dispatch(loadLists(JSON.parse(data)));
-    };
-    load();
-  }, []);
-
-  return children;
-};
-
-export default function App() {
+export default function Index() {
   return (
     <Provider store={store}>
-      <Loader>{/* Navigation here */}</Loader>
+      <PersistGate persistor={persistor} loading={null}>
+        <SafeAreaView style={styles.screen}>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Grocery Tracker</Text>
+          </View>
+
+          <ItemCreator />
+          <ItemList />
+        </SafeAreaView>
+      </PersistGate>
     </Provider>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#eef2f7",
+  },
+  header: {
+    backgroundColor: "#334155",
+    paddingVertical: 20,
+    alignItems: "center",
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  headerTitle: {
+    color: "#ffffff",
+    fontSize: 20,
+    fontWeight: "700",
+    letterSpacing: 0.6,
+  },
+});
