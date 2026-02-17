@@ -1,137 +1,63 @@
 import React, { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { addItem } from "../features/shoppingSlice";
-import { useAppDispatch } from "../hooks";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { RootState } from "../store";
+import ItemEditorModal from "./ItemEditorModal";
 
 export default function ItemCreator() {
   const dispatch = useAppDispatch();
+  const itemCount = useAppSelector(
+    (state: RootState) => state.shopping.items.length,
+  );
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const [itemLabel, setItemLabel] = useState("");
-  const [itemQty, setItemQty] = useState("1");
-  const [errorMsg, setErrorMsg] = useState("");
-  const [toastMsg, setToastMsg] = useState("");
-
-  const handleCreateItem = () => {
-    if (!itemLabel.trim()) {
-      setErrorMsg("Item name cannot be empty.");
-      return;
-    }
-
-    const parsedQty = Math.max(1, parseInt(itemQty, 10) || 1);
-
-    dispatch(addItem(itemLabel.trim(), parsedQty));
-
-    setItemLabel("");
-    setItemQty("1");
-    setErrorMsg("");
-    setToastMsg(`"${itemLabel.trim()}" added`);
-
-    setTimeout(() => setToastMsg(""), 1500);
-  };
+  if (itemCount === 0) return null;
 
   return (
     <View style={styles.wrapper}>
-      <View style={styles.panel}>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter item name"
-          value={itemLabel}
-          onChangeText={(text) => {
-            setItemLabel(text);
-            if (text.trim()) setErrorMsg("");
-          }}
-          accessibilityLabel="Shopping item name"
-        />
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => setIsModalVisible(true)}
+      >
+        
+        <Text style={styles.buttonText}>Add New Item</Text>
+      </TouchableOpacity>
 
-        <Pressable
-          onPress={handleCreateItem}
-          accessibilityRole="button"
-          accessibilityLabel="Create shopping item"
-          testID="create-item-btn"
-          style={({ pressed }) => [
-            styles.actionBtn,
-            pressed && styles.actionBtnPressed,
-          ]}
-        >
-          <Ionicons name="add-circle-outline" size={22} color="#fff" />
-          <Text style={styles.actionText}>Add</Text>
-        </Pressable>
-      </View>
-
-      {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
-
-      {toastMsg ? (
-        <View style={styles.toast} testID="toast">
-          <Text style={styles.toastText}>{toastMsg}</Text>
-        </View>
-      ) : null}
+      <ItemEditorModal
+        isVisible={isModalVisible}
+        onDismiss={() => setIsModalVisible(false)}
+        currentName=""
+        currentQuantity={1}
+        saveChanges={(name, qty) => {
+          if (name.trim()) {
+            dispatch(addItem(name, qty));
+          }
+        }}
+      />
     </View>
   );
 }
 
-/* ================= STYLES ================= */
-
 const styles = StyleSheet.create({
   wrapper: {
     padding: 14,
-    backgroundColor: "#f1f3f6",
+    backgroundColor: "#eef2f7",
+    alignItems: "flex-end",
   },
-  panel: {
-    backgroundColor: "#ffffff",
-    borderRadius: 10,
-    padding: 12,
+  addButton: {
+    backgroundColor: "#1F1F1F",
     flexDirection: "row",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#dcdcdc",
-    backgroundColor: "#fafafa",
-    marginRight: 10,
-  },
-  actionBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#4f46e5",
     paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-  },
-  actionBtnPressed: {
-    opacity: 0.8,
-  },
-  actionText: {
-    color: "#fff",
-    fontWeight: "700",
-    marginLeft: 6,
-  },
-  errorText: {
-    color: "#d11a2a",
-    marginTop: 6,
-    marginLeft: 4,
-    fontSize: 13,
-  },
-  toast: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 24,
-    backgroundColor: "#4f46e5",
-    paddingVertical: 12,
-    borderRadius: 10,
+    paddingHorizontal: 15,
+    borderRadius: 6,
     alignItems: "center",
+  
   },
-  toastText: {
+  buttonText: {
     color: "#fff",
     fontWeight: "600",
+    marginLeft: 4,
   },
 });

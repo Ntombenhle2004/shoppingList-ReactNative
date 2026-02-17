@@ -26,19 +26,19 @@ export default function Index() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#eef2f7",
   },
   header: {
-    backgroundColor: "#334155",
-    paddingVertical: 20,
-    alignItems: "center",
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    alignItems: "flex-start",
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F1F1",
   },
   headerTitle: {
-    color: "#ffffff",
-    fontSize: 20,
+    color: "#1F1F1F",
+    fontSize: 28,
     fontWeight: "700",
-    letterSpacing: 0.6,
+    letterSpacing: -1,
   },
 });
